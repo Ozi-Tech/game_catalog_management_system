@@ -1,0 +1,6 @@
+CREATE TABLE game (
+    id INT NOT NULL,
+    title VARCHAR2(255) NOT NULL,
+    Status VARCHAR2(20) DEFAULT 'Ongoing' NOT NULL,
+    PRIMARY KEY(id)
+);
