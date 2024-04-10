@@ -1,0 +1,20 @@
+CREATE OR REPLACE TRIGGER game_view_delete
+INSTEAD OF DELETE ON game_view
+FOR EACH ROW
+BEGIN
+  UPDATE game
+  SET Status = 'Completed'
+  WHERE id = :old.ID;
+  
+  UPDATE game_platform
+  SET endtime = SYSDATE
+  WHERE gameID = :old.ID
+    AND endtime IS NULL;
+
+  UPDATE game_publisher
+  SET endtime = SYSDATE
+  WHERE gameID = :old.ID
+    AND endtime IS NULL;
+
+END;
+/

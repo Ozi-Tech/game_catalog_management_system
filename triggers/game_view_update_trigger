@@ -1,0 +1,93 @@
+REATE OR REPLACE TRIGGER game_view_update
+INSTEAD OF INSERT OR UPDATE ON game_view
+FOR EACH ROW
+DECLARE
+  v_game_id INT;
+  v_copy_id INT;
+  v_platform_id INT;
+  v_publisher_id INT;
+  v_count NUMBER;
+BEGIN
+  -- Check for the game's existence and get the game's ID if it exists
+  SELECT COUNT(*) INTO v_count 
+  FROM game 
+  WHERE UPPER(title) = UPPER(:new.Game);
+  IF v_count = 0 THEN
+    SELECT game_seq.NEXTVAL INTO v_game_id FROM dual;
+    INSERT INTO game (id, title, Status) VALUES (v_game_id, :new.Game, :new.Status);
+  ELSE
+    SELECT id INTO v_game_id FROM game WHERE UPPER(title) = UPPER(:new.Game);
+  END IF;
+
+    -- Check for the game's existence and get the copy's ID if it exists
+  SELECT COUNT(*) INTO v_count 
+  FROM copy
+  WHERE UPPER(type) = UPPER(:new.Copy);
+  IF v_count = 0 THEN
+    SELECT copy_seq.NEXTVAL INTO v_copy_id FROM dual;
+    INSERT INTO copy (id, type) VALUES (v_copy_id, :new.Copy);
+  ELSE
+    SELECT id INTO v_copy_id FROM copy WHERE UPPER(type) = UPPER(:new.Copy);
+  END IF;
+  
+  -- Check for the platform's existence and get the platform's ID if it exists
+  SELECT COUNT(*) INTO v_count 
+  FROM platform 
+  WHERE UPPER(name) = UPPER(:new.Platform);
+  IF v_count = 0 THEN
+    SELECT platform_seq.NEXTVAL INTO v_platform_id FROM dual;
+    INSERT INTO platform (id, name) VALUES (v_platform_id, :new.Platform);
+  ELSE
+    SELECT id INTO v_platform_id FROM platform WHERE UPPER(name) = UPPER(:new.Platform);
+  END IF;
+  
+  -- Check for the publisher's existence and get the publisher's ID if it exists
+  SELECT COUNT(*) INTO v_count 
+  FROM publisher 
+  WHERE UPPER(name) = UPPER(:new.Publisher);
+  IF v_count = 0 THEN
+    SELECT publisher_seq.NEXTVAL INTO v_publisher_id FROM dual;
+    INSERT INTO publisher (id, name) VALUES (v_publisher_id, :new.Publisher);
+  ELSE
+    SELECT id INTO v_publisher_id FROM publisher WHERE UPPER(name) = UPPER(:new.Publisher);
+  END IF;
+
+   -- Managing game_copy association
+  SELECT COUNT(*) INTO v_count 
+  FROM game_copy
+  WHERE gameID = v_game_id;
+  IF v_count = 0 THEN
+    INSERT INTO game_copy (id, gameID, copyID, starttime) 
+    VALUES (game_copy_seq.NEXTVAL, v_game_id, v_copy_id, SYSDATE);
+  ELSE
+    UPDATE game_copy
+    SET copyID = v_copy_id
+    WHERE gameID = v_game_id;
+  END IF;
+  
+  -- Managing game_platform association
+  SELECT COUNT(*) INTO v_count 
+  FROM game_platform 
+  WHERE gameID = v_game_id;
+  IF v_count = 0 THEN
+    INSERT INTO game_platform (id, gameID, platformID, starttime) 
+    VALUES (game_platform_seq.NEXTVAL, v_game_id, v_platform_id, SYSDATE);
+  ELSE
+    UPDATE game_platform
+    SET platformID = v_platform_id
+    WHERE gameID = v_game_id;
+  END IF;
+  
+  -- Managing game_publisher association
+  SELECT COUNT(*) INTO v_count 
+  FROM game_publisher 
+  WHERE gameID = v_game_id;
+  IF v_count = 0 THEN
+    INSERT INTO game_publisher (id, gameID, publisherID, starttime) 
+    VALUES (game_publisher_seq.NEXTVAL, v_game_id, v_publisher_id, SYSDATE);
+  ELSE
+    UPDATE game_publisher
+    SET publisherID = v_publisher_id
+    WHERE gameID = v_game_id;
+END;
+/
