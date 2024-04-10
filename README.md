@@ -42,18 +42,18 @@ Clone this repository to your local machine to access all the SQL scripts and pr
 
 This creates the tables and establishes the relationships necessary for the database.
 
-Alternatively, all the table scripts are available in the `tables` file
+Alternatively, all the table scripts are available in the `tables.sql` file
 
 ### Step 3: Populate the Database
 
 After creating the tables, populate them with initial data:
 
-1. Go to the `sample_inserts` file.
+1. Go to the `sample_inserts.sql` file.
 2. Run each `insert` script to add data to your tables.
 
 ### Step 4: Implementing Sequences, Triggers and Views
 
-1. Execute the `sequences` script to create the necessary sequences.
+1. Execute the `sequences.sql` script to create the necessary sequences.
 2. Navigate to the `triggers` folder.
 3. Execute each PL/SQL trigger script to enable advanced data integrity and manipulation functionalities.
 4. Execute the `views.sql` script to create the necessary views for the project.
